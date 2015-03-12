@@ -1,0 +1,25 @@
+#!/bin/sh
+#Author Anthony Boccia <anthony@boccia.me>
+#The purpose of this hook is to check for tarballs of various extensions being pushed to koji project repo's by silly users. If it detects an attempt to do so it will block the push
+
+#This should do the job well enough for now, should have some more brains added to it.
+
+#Read for each revision value grab a listing of file differences, this creates a list of changes to loop through and check for binaries
+while read oldrev newrev refname; do
+files=`git diff --name-only ${oldrev} ${newrev}`
+
+#Loop through each change and assign to object the filenames for each
+        for file in ${files}; do
+        object=`git ls-tree --full-name -r ${newrev} | awk '{ print $4 }'`
+
+#Check the value of object on each loop, if it matches any of the defined binary archive formats listed below the bail out of the push and tell the user what their options are
+        if echo $object | egrep -q 'tar.gz|tar.bz2|tar.xz|.zip|.tar|.tgz'
+        then
+                echo "Binary archive files found in commit, please remove!"
+                echo "Bailing out of push"
+                echo "Tip: issue (git reset --soft HEAD~1 && git reset HEAD <binary>) to revert and unstage the commit"
+                exit 1
+        fi
+
+        done
+done
