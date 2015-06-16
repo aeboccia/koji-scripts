@@ -13,7 +13,7 @@ files=`git diff --name-only ${oldrev} ${newrev}`
         object=`git ls-tree --full-name -r ${newrev} | awk '{ print $4 }'`
 
 #Check the value of object on each loop, if it matches any of the defined binary archive formats listed below the bail out of the push and tell the user what their options are
-        if echo $object | egrep -q 'tar.gz|tar.bz2|tar.xz|.zip|.tar|.tgz'
+        if echo $object | egrep -q '*.tar.gz$|*.tar.bz2$|*.tar.xz$|.*.zip$|.*.tar$|*.tgz$'
         then
                 echo "Binary archive files found in commit, please remove!"
                 echo "Bailing out of push"
